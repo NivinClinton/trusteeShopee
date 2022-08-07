@@ -3,8 +3,8 @@ export const errorRes = (errMsg) => {
         message: errMsg
     }
 }
-export const successRes = (msg,data) => {
+export const successRes = (msg, data) => {
     return {
-        message: msg, ...data,
+        message: msg, ...data 
     }
 }
