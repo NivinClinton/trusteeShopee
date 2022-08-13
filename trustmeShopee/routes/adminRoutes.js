@@ -15,14 +15,14 @@ adminRouter.put('/updatecategory/:id', updateCategory)
 adminRouter.delete('/deletecategory/:id', deleteCategory)
 
 //subCategory
-adminRouter.post('/createsubcategory', createSubCategory)
-adminRouter.get('/getsubcategory', getSubCategory)
+adminRouter.post('/createsubcategory/:id', createSubCategory)
+adminRouter.get('/getsubcategory/:id', getSubCategory)
 adminRouter.put('/updatesubcategory/:id', updateSubCategory)
 adminRouter.delete('/deletesubcategory/:id', deleteSubCategory)
 
 //products
-adminRouter.post('/createproducts', createProducts)
-adminRouter.get('/getproducts', getProducts)
+adminRouter.post('/createproducts/:id', createProducts)
+adminRouter.get('/getproducts/:id', getProducts)
 adminRouter.put('/updateproducts/:id', updateProducts)
 adminRouter.delete('/deleteproducts/:id', deleteProducts)
 

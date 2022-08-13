@@ -98,16 +98,15 @@ export const adminLogin = async (req, res, next) => {
 
 
 export const createCategory = async (req, res) => {
+
     const { categoryName } = req.body
 
-    const categoryDetails = new category({
-        categoryName,
-        subCategories: []
-    })
+    const categoryDetails = new category(req.body)
     try {
         await categoryDetails.save();
     } catch (err) {
-        return console.log(err);
+        console.log(err);
+        return res.status(400).json("unable to create category")
     }
     return res.status(200).json({ data: categoryDetails })
 
@@ -130,18 +129,18 @@ export const getCategory = async (req, res) => {
 export const updateCategory = async (req, res) => {
     const { categoryName } = req.body
     const categoryId = req.params.id
-    let categoryNaming;
+    let categoryNameChange;
     try {
-        categoryNaming = await category.findByIdAndUpdate(categoryId, {
+        categoryNameChange = await category.findByIdAndUpdate(categoryId, {
             categoryName
         });
     } catch (err) {
         console.log(err);
     }
-    if (!categoryNaming) {
+    if (!categoryNameChange) {
         return res.status(500).json({ message: "unable to find categoryName" });
     }
-    return res.status(200).json({ categoryNaming });
+    return res.status(200).json({ categoryNameChange });
 }
 
 export const deleteCategory = async (req, res) => {
@@ -161,38 +160,23 @@ export const deleteCategory = async (req, res) => {
 }
 
 export const createSubCategory = async (req, res) => {
-    const { subCategoryName, categoryId } = req.body
-    let existingCategory;
-    try {
-        existingCategory = await category.findById(categoryId);
-    } catch (err) {
-        return console.log(err);
-    }
-
-    const subCategoryDetails = new subCategory({
-        subCategoryName,
-        categoryId,
-        Products:[]
-    })
-    try {
-        const session = await mongoose.startSession();
-        session.startTransaction();
-        await subCategoryDetails.save({ session });
-        existingCategory.subCategories.push(subCategoryDetails);
-        await existingCategory.save({ session });
-        await session.commitTransaction();
-    } catch (err) {
-        
-        return res.status(500).json({ message: err })
-    }
-    return res.status(200).json({ data: subCategoryDetails })
-}
-
-
-export const getSubCategory = async (req, res) => {
+    const { subCategoryName } = req.body
+    const categoryId = req.params.id
     let subCategories;
     try {
-        subCategories = await subCategory.find();
+        subCategories = await category.findOneAndUpdate({ "_id": categoryId },
+            {
+                "$push":
+                {
+                    "subCategories":
+                    {
+                        "subCategoryName": subCategoryName
+
+                    }
+                }
+            }
+        )
+      
     } catch (err) {
         console.log(err);
     }
@@ -203,94 +187,173 @@ export const getSubCategory = async (req, res) => {
     return res.json({ subCategories })
 
 }
-export const updateSubCategory = async (req, res) => {
-    const { subCategoryName } = req.body
-    const categoryId = req.params.id
-    let subCategoryNaming;
+export const getSubCategory = async (req, res) => {
+    const subCategoryId = req.params.id;
+    let categories;
+    let locSubCategory;
     try {
-        subCategoryNaming = await subCategory.findByIdAndUpdate(categoryId, {
-            subCategoryName
+        categories = await category.find()
+
+        for (var i = 0; i < categories.length; i++) {
+            for (var j = 0; j < categories[i].subCategories.length; j++) {
+                var subCategory = categories[i].subCategories[j]
+                if (subCategory._id == subCategoryId) {
+                    locSubCategory = subCategory;
+                    break;
+                }
+            }
+
+        }
+    } catch (error) {
+        console.log(error);
+
+    }
+    if (!locSubCategory) {
+        return res.status(400).json("subCategories not found")
+    }
+    return res.json({ locSubCategory })
+
+}
+export const updateSubCategory = async (req, res) => {
+    const { categoryName, subCategoryName } = req.body
+
+    const categoryId = req.params.id
+    let subCategoryNameChange;
+    try {
+        subCategoryNameChange = await category.updateOne({
+            "categoryName": categoryName,
+            "subCategories._id": categoryId
+        }, {
+            "$set": {
+                "subCategories.$.subCategoryName":
+                    subCategoryName
+            }
         });
     } catch (err) {
         console.log(err);
     }
-    if (!subCategoryNaming) {
-        return res.status(500).json({ message: "unable to find subCategoryName" });
+    if (!subCategoryNameChange) {
+        return res.status(500).json({ message: "unable to find subcategoryName" });
     }
-    return res.status(200).json({ subCategoryNaming });
+    return res.status(200).json({ message : "subcategoryName updated" });
 }
+
 export const deleteSubCategory = async (req, res) => {
     const subCategoryId = req.params.id
     let subCategoryName;
     try {
-        subCategoryName = await subCategory.findByIdAndRemove(subCategoryId).populate('categoryId');
-        await subCategoryName.categoryId.subCategories.pull(subCategoryName);
-        await subCategoryName.categoryId.save();
+        subCategoryName = await category.findOneAndUpdate({ "subCategories._id": subCategoryId },
+            { $pull: { subCategories: { _id: subCategoryId } } },
+            { new: true, useFindAndModify: false })
     } catch (err) {
         console.log(err);
-        return res.status(500).json(errorRes("unable to delete"))
     }
-    
+
+    if (!subCategoryName) {
+        return res.status(500).json("unable to delete")
+    }
+
     return res.json(successRes("subCategory deleted"))
 
 }
 
-export const createProducts =async(req,res)=>{
-    const { productName,productPrice,productDescription,productImage,categoryId } = req.body
+export const createProducts = async (req, res) => {
+    const { productName, productPrice, productDescription, productImage } = req.body
+    const categoryId = req.params.id
 
     let existingSubCategory;
     try {
-        existingSubCategory = await subCategory.findById(categoryId);
+        existingSubCategory = await category.findOneAndUpdate({ "subCategories._id": categoryId },
+            {
+                "$push":
+                {
+                    "subCategories.$.products":
+                    {
+                        "productName": productName,
+                        "productPrice": productPrice,
+                        "productDescription": productDescription,
+                        "productImage": productImage
+                    }
+                }
+            }
+        )
+        console.log(existingSubCategory)
     } catch (err) {
         return console.log(err);
     }
-
-
-    const productDetails = new productCategory({
-        productName,
-        productPrice,
-        productDescription,
-        productImage,
-        categoryId
-    })
-    try {
-        const session = await mongoose.startSession();
-        session.startTransaction();
-        await productDetails.save({ session });
-        existingSubCategory.Products.push(productDetails);
-        await existingSubCategory.save({ session });
-        await session.commitTransaction();
-    } catch (err) {
-        
-        return res.status(500).json({ message: err })
+    if (!existingSubCategory) {
+        return res.status(400).json("subCategories not found")
     }
-    return res.status(200).json({ data: productDetails })
+    return res.json({ existingSubCategory })
 
 }
-export const getProducts =async(req,res)=>{
-    let products;
+export const getProducts = async (req, res) => {
+    const productId = req.params.id
+    let categories;
+    let locProduct;
+   
     try {
-        products = await productCategory.find();
+        categories = await category.find().lean()
+
+        for (var i = 0; i < categories.length; i++) {
+            for (var j = 0; j < categories[i].subCategories.length; j++) {
+                var subCategory = categories[i].subCategories[j];
+                for (var z = 0; z < subCategory.products.length; z++) {
+                    var product = subCategory.products[z];
+                    if (product._id == productId) {
+                        locProduct = product;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (!locProduct) return res.json((errorRes("Product not found")))
+        return res.json(successRes("Product Fetched Successfully", locProduct))
+
     } catch (err) {
         console.log(err);
     }
 
-    if (!products) {
-        return res.status(400).json("products not found")
-    }
-    return res.json({ products })
+    
+    
 }
-export const updateProducts =async(req,res)=>{
-    const { productName, productPrice, productDescription, productImage } = req.body
-    const categoryId = req.params.id
+export const updateProducts = async (req, res) => {
+    const {productName,productPrice,productDescription,productImage,subCategoryId,productId}= req.body
+    const categoryId = req.params.id;
     let product;
     try {
-        product = await productCategory.findByIdAndUpdate(categoryId, {
-            productName,
-            productPrice,
-            productDescription,
-            productImage
-        });
+        product = await category.updateOne(
+            {
+               
+                "_id": categoryId
+            },            
+            {
+                "$set": {
+                    "subCategories.$[subCat].products.$[prod].productName": productName,
+                    "subCategories.$[subCat].products.$[prod].productPrice":productPrice,
+                    "subCategories.$[subCat].products.$[prod].productDescription": productDescription,
+                    "subCategories.$[subCat].products.$[prod].productImage": productImage
+                }
+            },
+            {
+                "multi": false,
+                "upsert": false,
+                arrayFilters: [
+                  {
+                    "subCat._id": {
+                      "$eq":subCategoryId
+                    }
+                  },
+                  {
+                    "prod._id": {
+                      "$eq":productId
+                    }
+                  }
+                ]
+              }
+        )
+ 
     } catch (err) {
         console.log(err);
     }
@@ -299,17 +362,23 @@ export const updateProducts =async(req,res)=>{
     }
     return res.status(200).json({ product });
 }
-export const deleteProducts =async(req,res)=>{
+export const deleteProducts = async (req, res) => {
+
+    const { subCategoryName } = req.body;
     const productId = req.params.id
     let product;
+    
     try {
-        product = await productCategory.findByIdAndRemove(productId).populate('categoryId');
-        await product.categoryId.Products.pull(product);
-        await product.categoryId.save();
+        product = await category.findOneAndUpdate({ "subCategories.subCategoryName": subCategoryName },
+
+            { $pull: { "subCategories.$.products": { _id: productId } } })
+
     } catch (err) {
+
         console.log(err);
+
         return res.status(500).json(errorRes("unable to delete"))
     }
-    
+
     return res.json(successRes("product deleted"))
 }
