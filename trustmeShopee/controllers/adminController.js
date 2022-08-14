@@ -51,9 +51,9 @@ export const adminRegister = async (req, res) => {
             expiresIn: "2h",
         }
     );
-    userDetails.token = token;
+   
 
-    return res.json({ userDetails })
+    return res.json({ userDetails,token })
 }
 
 export const adminLogin = async (req, res, next) => {
@@ -89,8 +89,8 @@ export const adminLogin = async (req, res, next) => {
         );
 
         // save user token
-        existingUser.token = token;
-        return res.status(200).json(successRes("login successful", { data: existingUser }));
+       
+        return res.status(200).json(successRes("login successful", { data: existingUser, token }));
     }
     return res.status(400).json(errorRes("Invalid Creditionals"));
 }
