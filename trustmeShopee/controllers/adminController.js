@@ -7,7 +7,6 @@ import { errorRes, successRes } from "../helpers/response_data.js";
 import category from "../model/category.js";
 import subCategory from "../model/subCategory.js";
 import mongoose from "mongoose";
-import productCategory from "../model/product_category.js";
 
 dotenv.config()
 
@@ -367,7 +366,7 @@ export const deleteProducts = async (req, res) => {
     const { subCategoryName } = req.body;
     const productId = req.params.id
     let product;
-    
+
     try {
         product = await category.findOneAndUpdate({ "subCategories.subCategoryName": subCategoryName },
 
