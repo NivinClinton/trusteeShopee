@@ -9,22 +9,22 @@ adminRouter.post('/register', adminRegister)
 adminRouter.post('/login', adminLogin)
 
 //category
-adminRouter.post('/createcategory', createCategory)
-adminRouter.get('/getcategory', getCategory)
-adminRouter.put('/updatecategory/:id', updateCategory)
-adminRouter.delete('/deletecategory/:id', deleteCategory)
+adminRouter.post('/createcategory',verifyToken, createCategory)
+adminRouter.get('/getcategory',verifyToken, getCategory)
+adminRouter.put('/updatecategory/:id',verifyToken, updateCategory)
+adminRouter.delete('/deletecategory/:id',verifyToken, deleteCategory)
 
 //subCategory
-adminRouter.post('/createsubcategory/:id', createSubCategory)
-adminRouter.get('/getsubcategory/:id', getSubCategory)
-adminRouter.put('/updatesubcategory/:id', updateSubCategory)
-adminRouter.delete('/deletesubcategory/:id', deleteSubCategory)
+adminRouter.post('/createsubcategory/:id',verifyToken, createSubCategory)
+adminRouter.get('/getsubcategory/:id',verifyToken, getSubCategory)
+adminRouter.put('/updatesubcategory/:id',verifyToken, updateSubCategory)
+adminRouter.delete('/deletesubcategory/:id',verifyToken, deleteSubCategory)
 
 //products
-adminRouter.post('/createproducts/:id', createProducts)
-adminRouter.get('/getproducts/:id', getProducts)
-adminRouter.put('/updateproducts/:id', updateProducts)
-adminRouter.delete('/deleteproducts/:id', deleteProducts)
+adminRouter.post('/createproducts/:id',verifyToken, createProducts)
+adminRouter.get('/getproducts/:id',verifyToken, getProducts)
+adminRouter.put('/updateproducts/:id',verifyToken, updateProducts)
+adminRouter.delete('/deleteproducts/:id',verifyToken, deleteProducts)
 
 
 

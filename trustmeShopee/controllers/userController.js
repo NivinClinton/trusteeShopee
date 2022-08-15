@@ -142,7 +142,7 @@ export const orderNew = async (req, res) => {
     if (!orderDetails) {
         return res.status(500).json({ message: "unable to add address" })
     }
-    return res.json({ message: "address added successfully", data: orderDetails })
+    return res.json({ message: "address added successfully", message: "Address added successfully" })
 
 }
 export const viewOrder = async(req,res)=>{

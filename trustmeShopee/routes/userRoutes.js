@@ -6,12 +6,12 @@ const userRouter = express.Router()
 
 userRouter.post('/register', register)
 userRouter.post('/login', login)
-userRouter.post("/welcome", verifyToken, (req, res) => {
-    res.status(200).send("Welcome 🙌 ");
-  });
+// userRouter.post("/welcome", verifyToken, (req, res) => {
+//     res.status(200).send("Welcome 🙌 ");
+//   });
  userRouter.get('/allCategories', allCategories)
- userRouter.post('/ordernew', orderNew)
- userRouter.get('/vieworder/:id', viewOrder)
+ userRouter.post('/ordernew',verifyToken, orderNew)
+ userRouter.get('/vieworder/:id',verifyToken, viewOrder)
 
 
 

@@ -5,7 +5,6 @@ import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { errorRes, successRes } from "../helpers/response_data.js";
 import category from "../model/category.js";
-import subCategory from "../model/subCategory.js";
 import mongoose from "mongoose";
 
 dotenv.config()

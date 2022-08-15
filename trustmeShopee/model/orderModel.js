@@ -9,8 +9,7 @@ const orderModelSchema = new Schema({
         postalCode: { type: Number, required: true },
         phoneNumber:{ type: Number, required: true },
         country: { type: String, required: true },
-        lat: Number,
-        lng: Number,
+       
         orderItems: [       
             {
               name: { type: String, required: true },
