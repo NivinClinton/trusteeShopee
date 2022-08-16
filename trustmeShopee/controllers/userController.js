@@ -108,7 +108,7 @@ export const allCategories = async (req, res) => {
     return res.json({ categories })
 }
 export const orderNew = async (req, res) => {
-    const { fullName, address,city,postalCode,phoneNumber,country,name,quantity,image,price,product } = req.body
+    const { fullName, address,city,postalCode,phoneNumber,country,quantity,image,price,product } = req.body
     const userId = req.params.id
 
     const orderDetails = new orderModel(
@@ -124,7 +124,7 @@ export const orderNew = async (req, res) => {
     )
     try {
         const itemDetails ={
-            name,quantity,image,price,product
+            quantity,image,price,product
         }
          orderDetails.orderItems.push(itemDetails)
         
@@ -142,7 +142,7 @@ export const orderNew = async (req, res) => {
     if (!orderDetails) {
         return res.status(500).json({ message: "unable to add address" })
     }
-    return res.json({ message: "address added successfully", message: "Address added successfully" })
+    return res.json({message: "Order Created Successfully!!" })
 
 }
 export const viewOrder = async(req,res)=>{
